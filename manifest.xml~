@@ -1,0 +1,14 @@
+<package>
+  <description brief="ebc">
+
+     Project of event-based control for second semester of master in embedded robotics at Politechnika Wroclawska
+
+  </description>
+  <author>Alain Sanguinetti</author>
+  <license>GNU GPL v2.0</license>
+  <review status="unreviewed" notes=""/>
+  <url>ebc</url>
+
+</package>
+
+
