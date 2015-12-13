@@ -86,7 +86,7 @@ class Controller ( Component ):
         self.loadGraph()
         
         self.display( self.graph.id )
-        self.display( self.graph.next[0].next[0].id )
+        self.display( self.graph.next[0].id )
         
         # creates the robot objects
         
