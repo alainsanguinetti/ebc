@@ -1,0 +1,15 @@
+<launch>
+
+    <!-- This is the launch file to start the testing set up of our project -->
+    
+    <!-- Param to specify the location of the config file -->
+    <param name="config_file_name" value="../config/file1.json" />
+    
+    <!-- Start the controller node -->
+    <node name="controller" pkg="ebc" type="Controller1.py" output="screen" >
+        
+    </node>
+    
+</launch>
+        
+
