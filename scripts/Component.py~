@@ -25,13 +25,9 @@ class Component ( object ):
         
         self.setup()
         
-        
-        
     def setup( self ):
         """ Initialize all variables etc """ 
         return        
-        
-        
         
     def loop ( self, user_rate=None ):
         """ 
@@ -64,20 +60,14 @@ class Component ( object ):
         """ An empty function because it is supposed to be customized by the inheriting object """
         return
         
-        
-        
     def stop( self ):
         """ If there is something to do before shutting down """ 
         #self.display( "Node is shutting down" )
         return
     
-    
-    
     def log( self, string ):
         """ Print something to the log file """    
         rospy.logdebug( str( string ) )
-        
-        
         
     def display( self, string ):
         """ Print something on stdout """    

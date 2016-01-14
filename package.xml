@@ -1,0 +1,9 @@
+<package format="2">
+  <name>ebc</name>
+  <version>0.0.1</version>
+  <description>
+  This is the event based control project ROS package
+  </description>
+  <maintainer email="alain@sanguinetti.eu">Alain Sanguinetti</maintainer>
+  <license>BSD</license>
+</package>

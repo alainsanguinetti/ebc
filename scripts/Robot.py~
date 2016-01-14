@@ -17,7 +17,7 @@ class Robot ( Component ):
         
             
     
-    def setup ( self ):
+    def setup ( self, controller_name ):
         """ Creates the subscribers and publishers and all needed variables (with self.name_of_the_variable) """
     
         # Creates the publisher for events of the robot

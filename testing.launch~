@@ -10,10 +10,6 @@
         
     </node>
     
-    <!-- Start a robot node -->
-    <node name="robot" pkg="ebc" type="Robot.py" output="screen" >
-    </node>
-    
 </launch>
         
 
