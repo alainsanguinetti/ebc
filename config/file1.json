@@ -1,7 +1,6 @@
 {
-
-    "agents" : { 
-        "number" : 2
+    "performers" : { 
+        "quantity" : 4
         },
     "graph" : {
         "sectors" : [

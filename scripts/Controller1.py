@@ -12,9 +12,12 @@ from Graph import Graph
 import rospy
 import sys
 import json
+import roslaunch
 
 class Controller ( Component ):
     """ This is a controller. It is a runnable component of our project """ 
+    
+    
     
     def loadConfig( self ):
         """ This method load the config file """
@@ -29,6 +32,8 @@ class Controller ( Component ):
             self.display("Error opening config file. %s" % e)
             raise
             
+            
+            
     def createListGraph( self, sectors ):
         """
         This method will create the list of Graph object that will represent the environment
@@ -42,6 +47,8 @@ class Controller ( Component ):
             graph.append( Graph( sector ) )
             
         return graph
+            
+            
             
     def linkGraphs ( self ):
         """ 
@@ -76,6 +83,30 @@ class Controller ( Component ):
         self.linkGraphs()
         
         
+        
+    def createRobots( self ):
+        """
+        This method will creates all the node corresponding to robots
+        and store process handlers in an array
+        """
+        
+        package = "ebc"
+        executable = "Robot.py"
+        name_base = "robot"
+        
+        launch = roslaunch.scriptapi.ROSLaunch()
+        launch.start()
+        
+        self.robot_processes = []
+        for i in range( 0, self.config["performers"]["quantity"] ):
+            # Load the parameter to be passed to the robot 
+            #launch.load_str( "<node name=\"robot" + str(i) + "\" pkg=\"ebc\" type=\"Robot.py\" output=\"screen\" ></node>")
+            robot_process = launch.launch( roslaunch.core.Node(package, executable, name=name_base+str(i) ) )
+            
+            self.robot_processes.append( robot_process )
+            
+            
+        
     
     def setup ( self ):
         """ Here we set up the simulation parameters for the controller """
@@ -89,9 +120,9 @@ class Controller ( Component ):
         self.display( self.graph.next[0].next[0].id )
         
         # creates the robot objects
+        self.createRobots()
         
         # initialize the state
-        
         
 
 
@@ -101,6 +132,16 @@ class Controller ( Component ):
         self.display(  "this is awesome" )
                 
                 
+                
+    def stop( self ):
+        """
+        This is the cleanup function
+        """
+        # Stop robot processes
+        for robot_process in self.robot_processes:
+            robot_process.stop()
+            
+            
             
             
 if __name__ == "__main__":

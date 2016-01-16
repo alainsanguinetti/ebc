@@ -6,12 +6,9 @@
     <param name="config_file_name" value="../config/file1.json" />
     
     <!-- Start the controller node -->
+    <!-- The controller node will start the robot nodes -->
     <node name="controller" pkg="ebc" type="Controller1.py" output="screen" >
         
-    </node>
-    
-    <!-- Start a robot node -->
-    <node name="robot" pkg="ebc" type="Robot.py" output="screen" >
     </node>
     
 </launch>
