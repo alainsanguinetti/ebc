@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding:utf-8 -*-
 
 """ This scripts is the first attempt to create a controller node for our project.
 
@@ -9,15 +10,20 @@ May the Force be with us. """
 
 from Component import Component
 from Graph import Graph
+from RobotHandler import RobotHandler
+from ebc.msg import Event
 import rospy
 import sys
 import json
 import roslaunch
 
+
+
 class Controller ( Component ):
-    """ This is a controller. It is a runnable component of our project """ 
-    
-    
+    """
+    This is a controller. It is a runnable component of our project.
+    It ensures that the system will perform the tasks.
+    """ 
     
     def loadConfig( self ):
         """ This method load the config file """
@@ -84,10 +90,20 @@ class Controller ( Component ):
         
         
         
+    def robot_callback( self, msg ):
+        """
+        Reacts to a event from a robot
+        """
+        
+        self.display ( str(msg.robot_id) + ": " + str( msg.event ) )
+        
+        
+        
     def createRobots( self ):
         """
         This method will creates all the node corresponding to robots
-        and store process handlers in an array
+        and store process handlers in an array.
+        It will also creates the corresponding topics.
         """
         
         package = "ebc"
@@ -97,19 +113,22 @@ class Controller ( Component ):
         launch = roslaunch.scriptapi.ROSLaunch()
         launch.start()
         
-        self.robot_processes = []
+        self.robot_handlers = []
         for i in range( 0, self.config["performers"]["quantity"] ):
-            # Load the parameter to be passed to the robot 
-            #launch.load_str( "<node name=\"robot" + str(i) + "\" pkg=\"ebc\" type=\"Robot.py\" output=\"screen\" ></node>")
-            robot_process = launch.launch( roslaunch.core.Node(package, executable, name=name_base+str(i) ) )
-            
-            self.robot_processes.append( robot_process )
+        
+            self.robot_handlers.append( RobotHandler( name_base+str(i), launch, self ) )
             
             
         
     
     def setup ( self ):
         """ Here we set up the simulation parameters for the controller """
+        
+        # Publish our name to the parameters server
+        rospy.set_param( 'controller_name', rospy.get_name() )
+        
+        # Create our control publish
+        self.pub = rospy.Publisher( rospy.get_name(), Event )
         
         self.loadConfig() # Load the config file
         
@@ -137,9 +156,9 @@ class Controller ( Component ):
         """
         This is the cleanup function
         """
-        # Stop robot processes
-        for robot_process in self.robot_processes:
-            robot_process.stop()
+            
+        for robot_handler in self.robot_handlers:
+            robot_handler.stop()
             
             
             
