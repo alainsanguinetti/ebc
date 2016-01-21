@@ -1,6 +1,6 @@
 {
     "performers" : { 
-        "quantity" : 3
+        "quantity" : 1
         },
     "graph" : {
         "sectors" : [
@@ -17,8 +17,8 @@
             
     },
     "tasks": [
-        "home/0/1/A/3/B/4/2/0/home/",
-        "home/0/2/5/A/3/B/4/2/0/home/",
-        "home/0/1/A/3/B/4/2/0/home/"
+        "home/0/1/A/3/B/4/2/0/home",
+        "home/0/2/5/A/3/B/4/2/0/home",
+        "home/0/1/A/3/B/4/2/0/home"
     ]    
 }

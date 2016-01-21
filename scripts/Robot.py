@@ -12,7 +12,6 @@ import json
 
 
 class Robot ( Component ):
-
     """ The Robot class is a representation of a robot """
 
     def loadConfig( self ):
@@ -27,6 +26,7 @@ class Robot ( Component ):
             e = sys.exc_info()[0]
             self.display("Error opening config file. %s" % e)
             raise
+
 
 
     def sectorLength( self ):
@@ -121,4 +121,4 @@ class Robot ( Component ):
 if __name__ == "__main__":
     robot = Robot ( "robot" )
     robot.start()
-    robot.loop(1)
+    robot.loop(0.1)

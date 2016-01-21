@@ -8,8 +8,9 @@ from ebc.msg import Event
 class State( object ):
     """ The State object is used to represent a certain setting of the simulation as understood by the controller """
     
-    def __init__ ( self, n, m, P=[], R=[], N=[] ):
+    def __init__ ( self, config, n, m, P=[], R=[], N=[] ):
         """ This function creates a state with P, R and N as attributes """
+        self.config = config
         self.n = n
         self.m = m  # not sure this is needed
         
@@ -18,7 +19,7 @@ class State( object ):
         
             self.P = [0] * n
             self.R = [ "home" ] * n
-            self.N = [0] * n 
+            self.N = ["0"] * n 
     
         # Creation of a particular state
         else:
@@ -26,6 +27,18 @@ class State( object ):
             self.R = R
             self.N = N
             
+            
+            
+    def sectorLength( self, sector_id ):
+        """
+        Returns the length of the sector
+        
+        sector_id -- the sector the length of which we want to know
+        """
+        for sector in self.config[ "graph" ][ "sectors" ]:
+            if sector ['id']== sector_id:
+                return sector[ "length" ]
+                
             
             
     def checkFreeSectors( self ):
@@ -36,11 +49,19 @@ class State( object ):
         for i in range( 0, self.n ):
             all_clear = True
             next_sector = self.N[ i ]
-            for j in range( 0, self.n ):
-                if self.R[j] == next_sector:
-                    self.active_robots[ i ] = 0 # This robot cannot be active
-                    
             
+            # If the next sector is the same as the current then we do not have a task, so we don't do anything
+            if self.R[i] != self.N[i]:
+                for j in range( 0, self.n ):
+                    next_sector_length = self.sectorLength( next_sector )
+                    # We check that there is nobody and that it is not a special state (length = 0)
+                    if self.R[j] == next_sector and next_sector_length != 0:
+                        self.active_robots[ i ] = 0 # This robot cannot be active
+                        
+            else:
+                self.active_robots[ i ] = 0 # This robot cannot be active
+                        
+                
             
     def checkHighestCompletion( self ):
         """

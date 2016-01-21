@@ -46,7 +46,7 @@ class RobotHandler ( object ):
         """
         self.acceptTask = False
         self.task = task
-        self.todo_index = 0
+        self.todo_index = 1
         self.task_id = task_id
         
         
@@ -81,7 +81,7 @@ class RobotHandler ( object ):
         self.todo_index += 1
         
         # check if this is the end of the task
-        if self.todo_index == len( self.task.sectors ):
+        if self.todo_index == len( self.task.sectors ) - 1:
             # Free task
             self.finishTask()
             

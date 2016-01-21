@@ -98,11 +98,13 @@ class Controller ( Component ):
             
             # If the robot has finished the task
             if not self.robot_handlers[msg.robot_id].task:
+                self.display( "No task running for robot " + str( msg.robot_id ) )
                 self.state.P[msg.robot_id] = 0
                 self.state.R[msg.robot_id] = self.robot_handlers[msg.robot_id].nextSector() # returns the "home" value
-                self.state.N[msg.robot_id] = self.robot_handlers[msg.robot_id].nextSector()            
+                self.state.N[msg.robot_id] = self.robot_handlers[msg.robot_id].nextSector()    
                 
             else:
+                self.display( "Task running for robot " + str( msg.robot_id ) )
                 self.state.P[msg.robot_id] += 1
                 self.state.R[msg.robot_id] = self.state.N[msg.robot_id]
                 self.state.N[msg.robot_id] = self.robot_handlers[msg.robot_id].nextSector()
@@ -161,11 +163,16 @@ class Controller ( Component ):
         self.task_pub.publish( robot.id, str(task) )
         
         self.robot_handlers[robot.id].assignTask( task, self.next_assigned_task_index )
+        
+        # update the state
+        self.state.N[ robot.id ] = str(task.sectors[ 1 ])
     
         self.display( "Sent task " 
                     + str(self.next_assigned_task_index)
                     + " to robot " 
                     + str(robot.id) )
+                    
+
             
             
             
@@ -183,6 +190,19 @@ class Controller ( Component ):
                     self.next_assigned_task_index += 1
                 else:
                     break
+                    
+        # Check if all tasks are finished
+        if self.next_assigned_task_index == len( self.tasks ):
+            all_tasks_done = True
+            for robot in self.robot_handlers:
+                if not robot.acceptTask:
+                    all_tasks_done = False # At least one robot is busy
+                    break
+                    
+            if all_tasks_done:
+                # Say goodbye and quit
+                self.display( "Controller has successfully performed all operations, \"Yeeeeehaaaa\" if I may say so." )
+                self.stop()
             
         
     
@@ -192,6 +212,9 @@ class Controller ( Component ):
         
         # creates the robot handler objects
         self.createRobots()
+        
+        # initialize the state
+        self.state = State( self.config, len( self.robot_handlers ), len( self.config["graph"] ) )
         
         # Publish our name to the parameters server
         rospy.set_param( 'controller_name', rospy.get_name() )
@@ -207,8 +230,7 @@ class Controller ( Component ):
         self.loadTasks()
         self.dispatchTasks()
                 
-        # initialize the state
-        self.state = State( len( self.robot_handlers ), len( self.config["graph"] ) )
+
         
 
 
@@ -238,9 +260,12 @@ class Controller ( Component ):
             robot_handler.stop()
             
             
+        sys.exit()
+            
+            
             
             
 if __name__ == "__main__":
     ctrl = Controller ( "controller" )
     ctrl.start()
-    ctrl.loop(1)
+    ctrl.loop(0.5)
