@@ -9,6 +9,8 @@ It is a representation of a robot that provides method to register a robot
 import roslaunch
 import rospy
 from ebc.msg import Event
+from ebc.msg import Task as TaskMsg
+from Task import Task
 
 class RobotHandler ( object ):
     """
@@ -17,21 +19,23 @@ class RobotHandler ( object ):
     
     def __init__ ( self, r_name, launch, target ):
         """
-        Creates the robot node if it doesnot exist yet
+        Creates the robot node if it does not exist yet
         """
         package = "ebc"
         executable = "Robot.py"
         self.launch = launch
+
        
         self.r_name = r_name
+        self.id = int(filter(str.isdigit, self.r_name))
         
         self.node = roslaunch.core.Node(package, executable, name=r_name, output="screen" )
         self.process = self.launch.launch( self.node )
         
         # Register the subscriber for event
         self.sub = rospy.Subscriber( self.r_name, Event, target.robot_callback )
-        
-        # Create publisher for task event TODO
+
+        self.acceptTask = True
             
             
             

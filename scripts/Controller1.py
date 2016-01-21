@@ -10,8 +10,10 @@ May the Force be with us. """
 
 from Component import Component
 from Graph import Graph
+from Task import Task
 from RobotHandler import RobotHandler
 from ebc.msg import Event
+from ebc.msg import Task as TaskMsg
 import rospy
 import sys
 import json
@@ -60,18 +62,12 @@ class Controller ( Component ):
         """ 
         This method will link all the Graph objects
         """
-        
         # Link all graphs object with their nexts sectors
         for graph in self.graph:
-        
             next = []
-            
             for next_id in graph.next_ids:
-            
                 for next_graph in self.graph:
-                
                     if next_graph.id == next_id:
-                    
                         next.append( next_graph )
                         
             graph.next = next
@@ -115,32 +111,82 @@ class Controller ( Component ):
         
         self.robot_handlers = []
         for i in range( 0, self.config["performers"]["quantity"] ):
-        
             self.robot_handlers.append( RobotHandler( name_base+str(i), launch, self ) )
+
+        return
             
+            
+    
+    def loadTasks( self ):
+        """
+        This load the task and creates a stack of tasks
+        """
+        self.tasks = []
+        for task in self.config["tasks"]:
+            self.tasks.append( Task( task ) )
+            
+        self.next_assigned_task_index = 0
+        
+        return
+        
+                
+        
+    def sendTask( self, robot, task ):
+        """
+        Assign and send a task to the robot
+        """
+        # Wait until all robots are available
+        while not ( self.task_pub.get_num_connections() >= self.config["performers"]["quantity"] ):
+            rospy.sleep( 0.1 )
+            
+        # publish message
+        self.task_pub.publish( robot.id, str(task) )
+    
+        self.display( "Sent task " 
+                    + str(self.next_assigned_task_index)
+                    + " to robot " 
+                    + str(robot.id) )
+            
+            
+            
+    def dispatchTasks( self ):
+        """
+        This method will take the unfinished tasks from the pool of tasks and 
+        assign them to unoccupied robots
+        """
+        # For each unoccupied robots
+        for robot in self.robot_handlers:
+            if robot.acceptTask:
+                # assign an unassigned task( if there are any)
+                if self.next_assigned_task_index < len( self.tasks ): 
+                    self.sendTask( robot, self.tasks[ self.next_assigned_task_index ] )
+                    self.next_assigned_task_index += 1
+                else:
+                    break
             
         
     
     def setup ( self ):
         """ Here we set up the simulation parameters for the controller """
+        self.loadConfig() # Load the config file
+        
+        # creates the robot handler objects
+        self.createRobots()
         
         # Publish our name to the parameters server
         rospy.set_param( 'controller_name', rospy.get_name() )
         
         # Create our control publish
-        self.pub = rospy.Publisher( rospy.get_name(), Event )
-        
-        self.loadConfig() # Load the config file
+        self.event_pub = rospy.Publisher( rospy.get_name(), Event )
         
         # creates the graph object
         self.loadGraph()
         
-        self.display( self.graph.id )
-        self.display( self.graph.next[0].next[0].id )
-        
-        # creates the robot objects
-        self.createRobots()
-        
+        # Creates and dispatch the task messages
+        self.task_pub = rospy.Publisher( "/tasks", TaskMsg, latch=True ) # important to latch
+        self.loadTasks()
+        self.dispatchTasks()
+                
         # initialize the state
         
 
@@ -148,8 +194,8 @@ class Controller ( Component ):
     def loopHook(self):
         """ The loop hook is called by the loop() method """
     
-        self.display(  "this is awesome" )
-                
+        #self.display(  "this is awesome" )
+        return       
                 
                 
     def stop( self ):

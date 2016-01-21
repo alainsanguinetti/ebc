@@ -18,6 +18,7 @@ class Component ( object ):
         os.chdir(os.path.dirname( sys.argv[0]))
         
         
+        
     def start( self ):
         """ This creates a ROS node and calls the setup method""" 
            
@@ -60,6 +61,8 @@ class Component ( object ):
         
             self.stop()           
                     
+                    
+                    
     def loopHook( self ):
         """ An empty function because it is supposed to be customized by the inheriting object """
         return
@@ -81,7 +84,7 @@ class Component ( object ):
         
     def display( self, string ):
         """ Print something on stdout """    
-        rospy.loginfo( str( string ) )
+        rospy.loginfo( rospy.get_name() + ": " + str( string ) )
     
     
     

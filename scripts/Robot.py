@@ -3,8 +3,11 @@
 """ This file defines the robot object as seen from the controller point of view. It is a representation of a robot in the simulation """
 
 from Component import Component
+from Task import Task
 import rospy
 from ebc.msg import Event
+from ebc.msg import Task as TaskMsg
+
 
 class Robot ( Component ):
 
@@ -16,6 +19,19 @@ class Robot ( Component ):
         # Handle the different kind of event
         
         return
+        
+        
+        
+    def task_cb( self, message ):
+        """
+        Handles the arrival of task messages
+        """
+        self.display ( str( message.robot_id ) + " " + message.sectors )
+        # Store the message as the current task
+        if message.robot_id == self.id:
+            self.task = Task( message.sectors )
+            
+            self.display( "Received a task" )
         
             
     
@@ -33,7 +49,8 @@ class Robot ( Component ):
         self.controller_subscriber = rospy.Subscriber ( rospy.get_param( 'controller_name' ), Event, self.controller_event_callback )
         
         # Subscriber for task messages
-        # TODO
+        self.task = ""
+        self.task_sub = rospy.Subscriber( "/tasks", TaskMsg, self.task_cb, queue_size=10 )
         
         
         return
@@ -46,9 +63,10 @@ class Robot ( Component ):
         # simulate the robot moving if it is in moving state 
         
         # wait a bit if it is in waiting state
+        rospy.sleep(1)
         
         # FOR TESTING 
-        self.display( "Robot is looooooping" )
+        #self.display( "Robot is looooooping" )
         self.event_publisher.publish( Event( self.id, Event.G ) )
         
         return
