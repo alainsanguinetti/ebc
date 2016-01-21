@@ -87,6 +87,7 @@ class State( object ):
         # Apply rule to check the lowest index of robot
         robot_index = self.firstActiveRobot()
         
+        print ("nextEvent: " + str( self.active_robots) ) 
         if robot_index != None:
             return Event( robot_index, Event.G )
             

@@ -197,7 +197,7 @@ class Controller ( Component ):
         rospy.set_param( 'controller_name', rospy.get_name() )
         
         # Create our control publish
-        self.event_pub = rospy.Publisher( rospy.get_name(), Event )
+        self.event_pub = rospy.Publisher( rospy.get_name(), Event, latch=True )
         
         # creates the graph object
         self.loadGraph()

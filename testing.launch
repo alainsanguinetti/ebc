@@ -7,8 +7,10 @@
     
     <!-- Start the controller node -->
     <!-- The controller node will start the robot nodes -->
-    <node name="controller" pkg="ebc" type="Controller1.py" output="screen" >
-        
+    <node name="controller" pkg="ebc" type="Controller1.py" output="screen" >        
+    </node>
+    
+    <node name="simulator" pkg="ebc" type="Simulator.py" output="screen" >
     </node>
     
 </launch>
