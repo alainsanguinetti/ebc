@@ -67,7 +67,7 @@ class Robot ( Component ):
         
         # FOR TESTING 
         #self.display( "Robot is looooooping" )
-        self.event_publisher.publish( Event( self.id, Event.G ) )
+        self.event_publisher.publish( Event( self.id, Event.B ) )
         
         return
         

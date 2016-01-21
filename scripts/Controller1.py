@@ -10,6 +10,7 @@ May the Force be with us. """
 
 from Component import Component
 from Graph import Graph
+from State import State
 from Task import Task
 from RobotHandler import RobotHandler
 from ebc.msg import Event
@@ -88,10 +89,27 @@ class Controller ( Component ):
         
     def robot_callback( self, msg ):
         """
-        Reacts to a event from a robot
+        Reacts to a event from a robot : updates the state
         """
-        
-        self.display ( str(msg.robot_id) + ": " + str( msg.event ) )
+        # If the robot crosses a border, we change the state
+        # if the robot is displaying EOS or Gr, we do not change the state of the controller
+        if msg.event != Event.EOS and msg.event != Event.G:
+            # update the state
+            
+            # If the robot has finished the task
+            if not self.robot_handlers[msg.robot_id].task:
+                self.state.P[msg.robot_id] = 0
+                self.state.R[msg.robot_id] = self.robot_handlers[msg.robot_id].nextSector() # returns the "home" value
+                self.state.N[msg.robot_id] = self.robot_handlers[msg.robot_id].nextSector()            
+                
+            else:
+                self.state.P[msg.robot_id] += 1
+                self.state.R[msg.robot_id] = self.state.N[msg.robot_id]
+                self.state.N[msg.robot_id] = self.robot_handlers[msg.robot_id].nextSector()
+                
+                self.robot_handlers[msg.robot_id].changeSector()
+               
+        self.display ( "Received event from " + str(msg.robot_id) + ": " + str( msg.event ) )
         
         
         
@@ -141,6 +159,8 @@ class Controller ( Component ):
             
         # publish message
         self.task_pub.publish( robot.id, str(task) )
+        
+        self.robot_handlers[robot.id].assignTask( task, self.next_assigned_task_index )
     
         self.display( "Sent task " 
                     + str(self.next_assigned_task_index)
@@ -188,13 +208,24 @@ class Controller ( Component ):
         self.dispatchTasks()
                 
         # initialize the state
+        self.state = State( len( self.robot_handlers ), len( self.config["graph"] ) )
         
 
 
     def loopHook(self):
         """ The loop hook is called by the loop() method """
+        
+        # See if we can fire any control event (grant)
+        event = self.state.nextEvent()
+        if event:
+            self.event_pub.publish( event )
     
-        #self.display(  "this is awesome" )
+        # See if there is any unoccupied robot
+        self.dispatchTasks()
+        
+        # Print and that's it
+        self.display( str( self.state ) )
+        
         return       
                 
                 

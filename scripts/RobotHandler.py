@@ -36,6 +36,54 @@ class RobotHandler ( object ):
         self.sub = rospy.Subscriber( self.r_name, Event, target.robot_callback )
 
         self.acceptTask = True
+        self.task_id = None
+        
+        
+        
+    def assignTask( self, task, task_id ):
+        """
+        Stores a task in the robot handler
+        """
+        self.acceptTask = False
+        self.task = task
+        self.todo_index = 0
+        self.task_id = task_id
+        
+        
+        
+    def nextSector( self ):
+        """
+        Return the id of the next sector for the robot
+        """
+        if self.task:
+            return str(self.task.sectors[ self.todo_index + 1])
+        else:
+            return "home"
+        
+        
+        
+    def finishTask( self ):
+        """
+        Reset task related attributes
+        """
+        self.acceptTask = True
+        self.task = None
+        self.todo_index = None
+        self.task_id = None
+        
+        
+        
+    def changeSector( self ):
+        """
+        Advance the index on the todo list by one step
+        """
+        # One more sector crossed
+        self.todo_index += 1
+        
+        # check if this is the end of the task
+        if self.todo_index == len( self.task.sectors ) - 1:
+            # Free task
+            self.finishTask()
             
             
             

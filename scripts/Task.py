@@ -29,6 +29,15 @@ class Task ( object ):
         return
         
         
+    
+    def toList( self ):
+        """
+        Returns the task as a list of sectors to go through
+        """
+        
+        return self.sectors
+        
+        
         
     def __str__( self ):
         """
