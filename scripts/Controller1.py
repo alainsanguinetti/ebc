@@ -165,6 +165,8 @@ class Controller ( Component ):
         self.robot_handlers[robot.id].assignTask( task, self.next_assigned_task_index )
         
         # update the state
+        self.state.P[ robot.id ] = 0
+        self.state.R[ robot.id ] = str( task.sectors[ 0 ] )
         self.state.N[ robot.id ] = str(task.sectors[ 1 ])
     
         self.display( "Sent task " 
@@ -238,9 +240,10 @@ class Controller ( Component ):
         """ The loop hook is called by the loop() method """
         
         # See if we can fire any control event (grant)
-        event = self.state.nextEvent()
-        if event:
-            self.event_pub.publish( event )
+        events = self.state.nextEvent()
+        if events:
+            for event in events:
+                self.event_pub.publish( event )
     
         # See if there is any unoccupied robot
         self.dispatchTasks()

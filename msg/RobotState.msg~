@@ -1,14 +1,14 @@
 # The robot id
 uint8 robot_id
 
+
 # Current sector
-string cSector
 
 # Remaining length
-uint8 length
 
 # Next sector
-string nSector
+
+
 
 # Constants definition
 uint8 G=0

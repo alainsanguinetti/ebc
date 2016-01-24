@@ -60,7 +60,21 @@ class State( object ):
                         
             else:
                 self.active_robots[ i ] = 0 # This robot cannot be active
+                
+        print ("nextEvent: free sectors " + str( self.active_robots) ) 
                         
+                
+                
+    def competition( self ):
+        
+        for i in range( 0, self.n ):
+            if self.active_robots[ i ] == 1:
+                for j in range( 0, self.n ):
+                    if j != i and self.N[ i ] == self.N[ j ]:
+                        return True
+                    
+        return False
+                
                 
             
     def checkHighestCompletion( self ):
@@ -68,17 +82,22 @@ class State( object ):
         This apply the rule that the robot with the highest advancement 
         has priority
         """
-        adv_max = 0
-        # Find the highest advancement
-        for i in range( 0, self.n ):
-            if self.active_robots[ i ] == 1:
-                if self.P[ i ] > adv_max:
-                    adv_max = self.P[ i ]
-                    
-        # Only robots with this advancement are valid
-        for i in range( 0, self.n ):
-            if self.P[ i ] < adv_max:
-                self.active_robots[ i ] = 0 # Robot not active
+        # if two robots wants to enter the same sector
+        if self.competition():
+            adv_max = 0
+            # Find the highest advancement
+            for i in range( 0, self.n ):
+                if self.active_robots[ i ] == 1:
+                    if self.P[ i ] > adv_max:
+                        adv_max = self.P[ i ]
+                        
+            # Only robots with this advancement are valid
+            for i in range( 0, self.n ):
+                if self.P[ i ] < adv_max:
+                    self.active_robots[ i ] = 0 # Robot not active
+                
+                
+        print ("nextEvent: highest completion " + str( self.active_robots) ) 
                 
                 
                 
@@ -107,12 +126,18 @@ class State( object ):
         
         # Apply rule to check the lowest index of robot
         robot_index = self.firstActiveRobot()
-        
-        print ("nextEvent: " + str( self.active_robots) ) 
         if robot_index != None:
-            return Event( robot_index, Event.G )
+            print ("nextEvent: " + str( self.active_robots) ) 
+            events = []
+            for i in range ( 0, self.n ):
+                if self.active_robots[ i ] == 1:
+                    events.append( Event( i, Event.G ) )
+                    
+                    
+            return events
+        else:
+            return None # deadlock !!!!
             
-        return
     
             
     def __str__( self ):
